@@ -38,10 +38,6 @@ module Routable
   def response
     @response
   end
-
-  def method_missing
-    [404, {'Content-Type' => 'text/html'}, ['Not Found']]
-  end
 end
 
 class Application
