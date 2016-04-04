@@ -10,7 +10,31 @@ end
 class Response < Rack::Response
 end
 
+module Routable
+  def route!
+    send "#{request.request_method} #{request.path}".to_sym
+  end
+
+  def get(path, &block_p)
+    define_singleton_method("GET #{path}") { block_p.call }
+  end
+
+  def request
+    @request
+  end
+
+  def response
+    @response
+  end
+
+  def method_missing
+    [404, {'Content-Type' => 'text/html'}, ['Not Found']]
+  end
+end
+
 class Application
+  include ::Routable
+
   def initialize(options = {})
     @options = options
     if ARGV.any?
@@ -28,12 +52,14 @@ class Application
       @request = Request.new(env)
       @response = Response.new
 
-      # Router execution code here
-
-      @response
+      route!
     end
 
     handler.run app
+  end
+
+  def define_routes
+    yield self
   end
 
   private
@@ -44,5 +70,18 @@ class Application
   end
 end
 
+#
+# Example
+#
+
 app = Application.new
+
+app.define_routes do |app|
+  app.get '/hello' do
+    app.response.header['Content-Type'] = 'text/html'
+    app.response.body = ['hello']
+    app.response
+  end
+end
+
 app.run
