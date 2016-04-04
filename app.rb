@@ -11,12 +11,24 @@ class Response < Rack::Response
 end
 
 module Routable
+  def define_routes(&block)
+    instance_exec(&block)
+  end
+
   def route!
     send "#{request.request_method} #{request.path}".to_sym
   end
 
-  def get(path, &block_p)
-    define_singleton_method("GET #{path}") { block_p.call }
+  def map_method(verb, path, block_p)
+    define_singleton_method("#{verb.upcase.to_s} #{path}") { block_p.call }
+  end
+
+  def get(path, &block)
+    map_method(:get, path, block)
+  end
+
+  def post(path, &block)
+    map_method(:post, path, block)
   end
 
   def request
@@ -53,13 +65,11 @@ class Application
       @response = Response.new
 
       route!
+
+      @response
     end
 
     handler.run app
-  end
-
-  def define_routes
-    yield self
   end
 
   private
@@ -76,11 +86,10 @@ end
 
 app = Application.new
 
-app.define_routes do |app|
-  app.get '/hello' do
-    app.response.header['Content-Type'] = 'text/html'
-    app.response.body = ['hello']
-    app.response
+app.define_routes do
+  get '/hello' do
+    response.header['Content-Type'] = 'text/html'
+    response.body = ['hello']
   end
 end
 
