@@ -19,16 +19,16 @@ module Routable
     send "#{request.request_method} #{request.path}".to_sym
   end
 
-  def map_method(verb, path, block_p)
-    define_singleton_method("#{verb.upcase.to_s} #{path}") { block_p.call }
+  def map_method(verb, path, &block)
+    define_singleton_method("#{verb.upcase.to_s} #{path}", &block)
   end
 
   def get(path, &block)
-    map_method(:get, path, block)
+    map_method(:get, path, &block)
   end
 
   def post(path, &block)
-    map_method(:post, path, block)
+    map_method(:post, path, &block)
   end
 
   def request
