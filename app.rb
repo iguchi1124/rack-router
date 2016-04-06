@@ -54,7 +54,6 @@ class Application
   end
 
   def run
-    @options ||= {}
     handler = detect_rack_handler(@options[:rack_handler_name] || 'WEBrick')
     app = lambda do |env|
       @request = Request.new(env)
