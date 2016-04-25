@@ -20,15 +20,15 @@ module Routable
   end
 
   def map_method(verb, path, &block)
-    define_singleton_method("#{verb.upcase.to_s} #{path}", &block)
+    define_singleton_method("#{verb} #{path}", &block)
   end
 
   def get(path, &block)
-    map_method(:get, path, &block)
+    map_method('GET', path, &block)
   end
 
   def post(path, &block)
-    map_method(:post, path, &block)
+    map_method('POST', path, &block)
   end
 
   def request
